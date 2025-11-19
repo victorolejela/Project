@@ -1,0 +1,137 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Hospital Registration</title>
+  <style>
+    body {
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      background: linear-gradient(135deg, #0077b6, #00b4d8);
+      height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      margin: 0;
+    }
+
+    .register-container {
+      background: white;
+      padding: 40px 60px;
+      border-radius: 16px;
+      box-shadow: 0 8px 25px rgba(0, 0, 0, 0.2);
+      width: 400px;
+      text-align: center;
+      animation: fadeIn 0.8s ease-in-out;
+    }
+
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(-20px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    h2 {
+      color: #0077b6;
+      margin-bottom: 20px;
+      font-size: 26px;
+    }
+
+    label {
+      display: block;
+      text-align: left;
+      font-weight: 600;
+      margin-bottom: 6px;
+      color: #333;
+    }
+
+    input, select {
+      width: 100%;
+      padding: 12px;
+      margin-bottom: 15px;
+      border: 1px solid #ccc;
+      border-radius: 8px;
+      font-size: 15px;
+      box-sizing: border-box;
+      transition: border-color 0.2s;
+    }
+
+    input:focus, select:focus {
+      outline: none;
+      border-color: #0077b6;
+    }
+
+    button {
+      width: 100%;
+      background: #0077b6;
+      color: white;
+      border: none;
+      padding: 14px;
+      font-size: 16px;
+      border-radius: 8px;
+      cursor: pointer;
+      transition: background 0.3s;
+    }
+
+    button:hover {
+      background: #005f87;
+    }
+
+    .footer {
+      margin-top: 10px;
+      font-size: 14px;
+    }
+
+    .footer a {
+      color: #0077b6;
+      text-decoration: none;
+      font-weight: 600;
+    }
+
+    .footer a:hover {
+      text-decoration: underline;
+    }
+
+    .flash {
+      color: red;
+      margin-bottom: 10px;
+      font-size: 14px;
+    }
+  </style>
+</head>
+<body>
+  <div class="register-container">
+    <h2>Hospital Registration</h2>
+
+    {% with messages = get_flashed_messages() %}
+      {% if messages %}
+        {% for msg in messages %}
+          <div class="flash">{{ msg }}</div>
+        {% endfor %}
+      {% endif %}
+    {% endwith %}
+
+    <form method="POST">
+      <label>Full Name</label>
+      <input type="text" name="name" placeholder="Enter full name" required>
+
+      <label>Email Address</label>
+      <input type="email" name="email" placeholder="Enter email" required>
+
+      <label>Password</label>
+      <input type="password" name="password" placeholder="Create password" required>
+
+      <label>Role</label>
+      <select name="role">
+        <option value="admin">Admin</option>
+        <option value="staff">Staff (Doctor/Nurse/Receptionist)</option>
+        <option value="patient">Patient</option>
+      </select>
+
+      <button type="submit">Register</button>
+    </form>
+
+    <div class="footer">
+      Already registered? <a href="{{ url_for('login') }}">Login here</a>
+    </div>
+  </div>
+</body>
+</html>

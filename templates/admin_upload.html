@@ -1,0 +1,52 @@
+{% extends "base.html" %}
+{% block title %}Upload Activity{% endblock %}
+
+{% block content %}
+<div class="container mt-4">
+  <h2 class="mb-4">📊 Upload Activity Tracker</h2>
+
+  {% if uploads %}
+  <table class="table table-striped table-bordered align-middle">
+    <thead class="table-light">
+      <tr>
+        <th>Result ID</th>
+        <th>Patient</th>
+        <th>Uploaded By</th>
+        <th>Uploaded At</th>
+        <th>Status</th>
+        <th>Actions / Audit</th>
+      </tr>
+    </thead>
+    <tbody>
+      {% for r, patient_name, patient_email, patient_role, uploaded_by_name in uploads %}
+      <tr>
+        <td>{{ r.id }}</td>
+        <td>
+          <strong>{{ patient_name }}</strong><br>
+          <small>{{ patient_email }}</small>
+        </td>
+        <td>{{ uploaded_by_name or 'Unknown' }}</td>
+        <td>{{ r.uploaded_at.strftime("%Y-%m-%d %H:%M") if r.uploaded_at else '—' }}</td>
+        <td>{{ r.status }}</td>
+        <td>
+          {% if r.status != 'deleted' %}
+          <form method="POST" action="/upload/delete/{{ r.id }}" style="display:inline-block;">
+            <input type="hidden" name="deleted_by" value="{{ current_user.name if current_user else 'admin' }}">
+            <button class="btn btn-sm btn-danger" type="submit" onclick="return confirm('Are you sure you want to delete this upload?')">Delete</button>
+          </form>
+          {% else %}
+          <div>
+            <small>Deleted by {{ r.deleted_by or '—' }}</small><br>
+            <small>{{ r.deleted_at }}</small>
+          </div>
+          {% endif %}
+        </td>
+      </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+  {% else %}
+  <div class="alert alert-info">No uploads found yet.</div>
+  {% endif %}
+</div>
+{% endblock %}

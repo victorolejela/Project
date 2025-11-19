@@ -1,0 +1,207 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Forensic Dashboard (Admin Panel)</title>
+    <style>
+        body {
+            background: #f4f6f9;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            margin: 0;
+            padding: 0;
+        }
+
+        header {
+            background: #0d6efd;
+            color: white;
+            text-align: center;
+            padding: 20px;
+            position: relative;
+        }
+
+        .logout {
+            position: absolute;
+            top: 15px;
+            right: 25px;
+            background: #dc3545;
+            color: white;
+            padding: 8px 18px;
+            border-radius: 8px;
+            text-decoration: none;
+        }
+
+        .logout:hover {
+            background: #c82333;
+        }
+
+        .add-staff {
+            position: absolute;
+            top: 15px;
+            left: 25px;
+            background: #198754;
+            color: white;
+            padding: 8px 18px;
+            border-radius: 8px;
+            text-decoration: none;
+        }
+
+        .add-staff:hover {
+            background: #157347;
+        }
+
+        .stats {
+            display: flex;
+            justify-content: space-around;
+            margin: 30px auto;
+            width: 90%;
+            flex-wrap: wrap;
+        }
+
+        .card {
+            background: white;
+            border-radius: 15px;
+            box-shadow: 0 0 10px rgba(0,0,0,0.1);
+            width: 22%;
+            text-align: center;
+            padding: 20px;
+            margin: 10px;
+            transition: transform 0.2s ease-in-out;
+        }
+
+        .card:hover {
+            transform: scale(1.05);
+        }
+
+        .card a {
+            text-decoration: none;
+            color: inherit;
+        }
+
+        h2 { color: #0d6efd; }
+
+        table {
+            width: 90%;
+            margin: 30px auto;
+            border-collapse: collapse;
+            background: white;
+            border-radius: 10px;
+            overflow: hidden;
+        }
+
+        th, td {
+            padding: 10px;
+            border-bottom: 1px solid #ddd;
+            text-align: center;
+        }
+
+        th {
+            background: #0d6efd;
+            color: white;
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <h1>Hospital Forensic Dashboard</h1>
+        <!-- Add Staff and Logout buttons -->
+        <a href="{{ url_for('register') }}" class="add-staff">➕ Add Staff</a>
+        <a href="{{ url_for('logout') }}" class="logout">Logout</a>
+    </header>
+
+    <!-- Stats Overview -->
+    <div class="stats">
+        <div class="card">
+            <h2>{{ total_admins }}</h2>
+            <p>Admins</p>
+        </div>
+        <div class="card">
+            <h2>{{ total_staff }}</h2>
+            <p>Staff Members</p>
+        </div>
+        <div class="card">
+            <h2>{{ total_patients }}</h2>
+            <p>Registered Patients</p>
+        </div>
+        <div class="card">
+            <!-- ✅ Make upload card clickable -->
+            <a href="{{ url_for('admin_uploads') }}">
+                <h2>{{ total_uploads }}</h2>
+                <p>Lab Results Uploaded</p>
+                <small style="color:#0d6efd;">Click to view all uploads →</small>
+            </a>
+        </div>
+    </div>
+
+    <!-- Recent Users (minimal listing). Click a name to view full details -->
+    <h2 style="text-align:center;">Recently Registered Users</h2>
+    <table>
+        <tr>
+            <th>Name</th>
+            <th>Role</th>
+            <th>Registered At</th>
+        </tr>
+        {% for u in users %}
+        <tr>
+            <td>
+                    {% if u.role == 'patient' %}
+                    <a href="/patient/{{ u.id }}">{{ u.name }}</a>
+                    <br><small>ID: {{ (u.id|string)[:8] }}</small>
+                {% else %}
+                    {{ u.name }}<br><small>ID: {{ (u.id|string)[:8] }}</small>
+                {% endif %}
+            </td>
+            <td>{{ u.role }}</td>
+            <td>{{ u.created_at.strftime('%Y-%m-%d %H:%M:%S') }}</td>
+        </tr>
+        {% endfor %}
+    </table>
+
+    <!-- Recent Logs (compact). Details hidden by default to protect sensitive info -->
+    <h2 style="text-align:center;">Recent Activity Logs</h2>
+    <table>
+        <tr>
+            <th>User</th>
+            <th>Action</th>
+            <th>Timestamp</th>
+            <th>Details</th>
+        </tr>
+        {% for l in logs %}
+        <tr>
+            <td>{{ (l.user_id|string)[:8] }}</td>
+            <td>{{ l.action }}</td>
+            <td>{{ l.timestamp.strftime('%Y-%m-%d %H:%M:%S') }}</td>
+            <td>
+                <a href="#" class="show-details" data-details="{{ l.details|e }}">Show</a>
+            </td>
+        </tr>
+        <tr class="log-details-row" style="display:none;">
+            <td colspan="4" class="log-details-cell"></td>
+        </tr>
+        {% endfor %}
+    </table>
+
+    <script>
+    // Simple toggle to reveal log details in the table
+    document.addEventListener('DOMContentLoaded', function(){
+        document.querySelectorAll('.show-details').forEach(function(a){
+            a.addEventListener('click', function(e){
+                e.preventDefault();
+                var details = a.getAttribute('data-details') || '';
+                var tr = a.closest('tr');
+                var next = tr.nextElementSibling;
+                if(next && next.classList.contains('log-details-row')){
+                    var cell = next.querySelector('.log-details-cell');
+                    if(next.style.display === 'none'){
+                        cell.textContent = details;
+                        next.style.display = '';
+                    } else {
+                        next.style.display = 'none';
+                    }
+                }
+            });
+        });
+    });
+    </script>
+
+</body>
+</html>

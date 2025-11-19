@@ -1,0 +1,55 @@
+{% extends "base.html" %}
+{% block title %}Patient Details{% endblock %}
+
+{% block content %}
+<div class="container mt-4">
+  <h2>Patient Details — {{ patient.name }} (ID: {{ patient.id }})</h2>
+  <div class="card p-3 mt-3">
+    <p><strong>Name:</strong> {{ patient.name }}</p>
+    <p><strong>Email:</strong> {{ patient.email }}</p>
+    <p><strong>Phone:</strong> {{ patient.phone or '—' }}</p>
+    <p><strong>Registered:</strong> {{ patient.created_at if patient.created_at else '—' }}</p>
+  </div>
+
+  <h4 class="mt-4">Uploaded Results</h4>
+  {% if uploads %}
+    <table class="table table-bordered">
+      <thead>
+        <tr>
+          <th>ID</th>
+          <th>Filename</th>
+          <th>Uploaded By</th>
+          <th>Uploaded At</th>
+          <th>Status</th>
+          <th>Actions</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for u in uploads %}
+        <tr>
+          <td>{{ u.id }}</td>
+          <td>{{ u.filename }}</td>
+          <td>{{ u.uploaded_by or '—' }}</td>
+          <td>{{ u.uploaded_at }}</td>
+          <td>{{ u.status }}</td>
+          <td>
+            {% if u.status != 'deleted' %}
+            <form method="POST" action="/upload/delete/{{ u.id }}" style="display:inline-block;">
+              <input type="hidden" name="deleted_by" value="{{ current_user.name if current_user else 'admin' }}">
+              <button class="btn btn-sm btn-danger" type="submit">Delete</button>
+            </form>
+            {% else %}
+            <small>Deleted by {{ u.deleted_by }}</small>
+            {% endif %}
+          </td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  {% else %}
+    <div class="alert alert-info">No uploads for this patient yet.</div>
+  {% endif %}
+
+  <a href="{{ url_for('index') }}" class="btn btn-secondary mt-3">← Back</a>
+</div>
+{% endblock %}
